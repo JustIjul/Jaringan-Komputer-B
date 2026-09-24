@@ -350,6 +350,7 @@ MTR juga menampilkan packet loss sekitar 20% (20.1%), konsisten dengan hasil pin
 # Di netics-pc-3
 tc qdisc show dev eth0
 tc qdisc show dev eth1
+tc qdisc show dev eth2
 ```
 
 **Output:**
@@ -357,13 +358,14 @@ tc qdisc show dev eth1
 ```
 qdisc netem 8001: dev eth0 root refcnt 2 limit 1000 loss 20%
 qdisc netem 8002: dev eth1 root refcnt 2 limit 1000 loss 20%
+qdisc netem 8003: dev eth2 root refcnt 2 limit 1000 loss 20%
 ```
 
 **Screenshot:**
 ![Verifikasi Qdisc Packet Loss](img/netics-pc-3-packet-loss.png)
 
 **Penjelasan:**
-Output tc qdisc show mengkonfirmasi bahwa netem dengan loss 20% sudah diterapkan pada kedua interface eth0 dan eth1 di bridge PC-3.
+Output tc qdisc show mengkonfirmasi bahwa netem dengan loss 20% sudah diterapkan pada ketiga interface eth0, eth1, dan eth2 di bridge PC-3.
 
 ---
 
@@ -379,6 +381,7 @@ Simulasi pembatasan throughput ke 50 Mbps diterapkan untuk menguji kemampuan jar
 # Hapus qdisc netem terlebih dahulu (opsional, jika ingin test throughput tanpa packet loss)
 tc qdisc del dev eth0 root
 tc qdisc del dev eth1 root
+tc qdisc del dev eth2 root
 
 # Terapkan pembatasan throughput 50 Mbps pada eth0
 tc qdisc replace dev eth0 root tbf rate 50mbit burst 64k limit 64k
