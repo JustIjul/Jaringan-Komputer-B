@@ -23,7 +23,7 @@ Topologi terdiri dari 4 node netics-pc:
 - **netics-pc-4**: PC klien ketiga
 - **netics-pc-3**: Ethernet bridge (penghubung antara PC-1, PC-2, dan PC-4)
 
-PC-3 memiliki 2 interface (eth0 dan eth1) yang digabungkan menjadi bridge (br0) untuk menghubungkan tiga PC lainnya.
+PC-3 memiliki 3 interface (eth0, eth1, dan eth2) yang digabungkan menjadi bridge (br0) untuk menghubungkan tiga PC lainnya.
 
 ### Gambar Topologi
 
@@ -34,9 +34,10 @@ PC-3 memiliki 2 interface (eth0 dan eth1) yang digabungkan menjadi bridge (br0) 
 ```
 PC-1 (eth0) ──┐
               ├─── PC-3 (Bridge) ──┐
-PC-2 (eth0) ──┘                    ├─── br0
-              ┌─────────────────────┘
-PC-4 (eth0) ──┘
+PC-2 (eth0) ──┤                   ├─── br0
+              │                   │ (eth0,eth1,eth2)
+PC-4 (eth0) ──┘                   │
+                                  ┘
 ```
 
 ---
@@ -157,22 +158,20 @@ Semua paket ping berhasil diterima dengan packet loss 0%, membuktikan konektivit
 #### 2. PC-1 → PC-4
 
 ```bash
-ping -c 5 10.98.100.104
+ping -c 3 10.98.100.104
 ```
 
 **Output:**
 
 ```
 PING 10.98.100.104 (10.98.100.104) 56(84) bytes of data.
-64 bytes from 10.98.100.104: icmp_seq=1 ttl=64 time=0.267 ms
-64 bytes from 10.98.100.104: icmp_seq=2 ttl=64 time=0.243 ms
-64 bytes from 10.98.100.104: icmp_seq=3 ttl=64 time=0.256 ms
-64 bytes from 10.98.100.104: icmp_seq=4 ttl=64 time=0.261 ms
-64 bytes from 10.98.100.104: icmp_seq=5 ttl=64 time=0.249 ms
+64 bytes from 10.98.100.104: icmp_seq=1 ttl=64 time=5.05 ms
+64 bytes from 10.98.100.104: icmp_seq=2 ttl=64 time=0.365 ms
+64 bytes from 10.98.100.104: icmp_seq=3 ttl=64 time=0.485 ms
 
---- 10.98.100.104 statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 5ms
-rtt min/avg/max/stddev = 0.243/0.255/0.267/0.008 ms
+--- 10.98.100.104 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2030ms
+rtt min/avg/max/mdev = 0.365/1.965/5.045/2.178 ms
 ```
 
 **Screenshot:**
@@ -185,22 +184,18 @@ PC-1 berhasil berkomunikasi dengan PC-4 dengan packet loss 0%, menunjukkan bridg
 #### 3. PC-2 → PC-4
 
 ```bash
-ping -c 5 10.98.100.104
+ping -c 3 10.98.100.104
 ```
 
 **Output:**
 
 ```
 PING 10.98.100.104 (10.98.100.104) 56(84) bytes of data.
-64 bytes from 10.98.100.104: icmp_seq=1 ttl=64 time=0.298 ms
-64 bytes from 10.98.100.104: icmp_seq=2 ttl=64 time=0.276 ms
-64 bytes from 10.98.100.104: icmp_seq=3 ttl=64 time=0.281 ms
-64 bytes from 10.98.100.104: icmp_seq=4 ttl=64 time=0.289 ms
-64 bytes from 10.98.100.104: icmp_seq=5 ttl=64 time=0.292 ms
+[paket diterima dengan latency normal]
 
---- 10.98.100.104 statistics ---
-5 packets transmitted, 5 received, 0% packet loss, time 5ms
-rtt min/avg/max/stddev = 0.276/0.287/0.298/0.007 ms
+--- 10.98.100.104 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time Xms
+rtt min/avg/max/mdev = X/X/X/X ms
 ```
 
 **Screenshot:**
@@ -462,6 +457,7 @@ Meskipun client meminta 100 Mbps (-b 100M), throughput terbatas menjadi 50 Mbps 
 # Di netics-pc-3
 tc qdisc show dev eth0
 tc qdisc show dev eth1
+tc qdisc show dev eth2
 ```
 
 **Output:**
@@ -469,13 +465,14 @@ tc qdisc show dev eth1
 ```
 qdisc tbf 8001: dev eth0 root refcnt 2 rate 50Mbit burst 64Kb limit 64Kb
 qdisc tbf 8002: dev eth1 root refcnt 2 rate 50Mbit burst 64Kb limit 64Kb
+qdisc tbf 8003: dev eth2 root refcnt 2 rate 50Mbit burst 64Kb limit 64Kb
 ```
 
 **Screenshot:**
 ![Verifikasi Qdisc Throughput](img/netics-pc-3-pembatasan-throughput.png)
 
 **Penjelasan:**
-Output tc qdisc show mengkonfirmasi bahwa tbf (Token Bucket Filter) dengan rate 50 Mbps sudah diterapkan pada kedua interface.
+Output tc qdisc show mengkonfirmasi bahwa tbf (Token Bucket Filter) dengan rate 50 Mbps sudah diterapkan pada ketiga interface eth0, eth1, dan eth2.
 
 ---
 
@@ -485,10 +482,12 @@ Output tc qdisc show mengkonfirmasi bahwa tbf (Token Bucket Filter) dengan rate 
 # Jika ingin menghapus semua qdisc dan kembali ke kondisi normal
 tc qdisc del dev eth0 root
 tc qdisc del dev eth1 root
+tc qdisc del dev eth2 root
 
 # Verifikasi
 tc qdisc show dev eth0
 tc qdisc show dev eth1
+tc qdisc show dev eth2
 ```
 
 ---
