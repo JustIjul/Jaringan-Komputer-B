@@ -27,7 +27,7 @@ PC-3 memiliki 2 interface (eth0 dan eth1) yang digabungkan menjadi bridge (br0) 
 
 ### Gambar Topologi
 
-[Insert screenshot topologi GNS3 di sini]
+![Topologi GNS3](img/topologi-jaringan.png)
 
 ### Keterangan Koneksi
 
@@ -100,7 +100,17 @@ brctl show
 
 ### Screenshot Konfigurasi IP
 
-[Insert screenshot hasil konfigurasi di setiap PC]
+#### PC-1
+![Konfigurasi PC-1](img/netics-pc-1-konfigure.png)
+
+#### PC-2
+![Konfigurasi PC-2](img/netics-pc-2-konfigure.png)
+
+#### PC-3
+![Konfigurasi PC-3](img/netics-pc-3-konfigure.png)
+
+#### PC-4
+![Konfigurasi PC-4](img/netics-pc-4-konfigure.png)
 
 ### Penjelasan
 
@@ -134,7 +144,7 @@ rtt min/avg/max/stddev = 0.198/0.215/0.234/0.012 ms
 ```
 
 **Screenshot:**
-[Insert screenshot hasil ping]
+![Hasil Ping PC-1 ke PC-2](img/netics-pc-1-ping.png)
 
 **Penjelasan:**
 Semua paket ping berhasil diterima dengan packet loss 0%, membuktikan konektivitas PC-1 ke PC-2 berjalan normal tanpa gangguan.
@@ -244,7 +254,7 @@ Keys:  Help   Display mode   Restart statistics   Order of fields   quit
 ```
 
 **Screenshot:**
-[Insert screenshot hasil mtr]
+![Hasil MTR PC-4](img/netics-pc-4-mtr.png)
 
 **Penjelasan:**
 MTR PC-1 ke PC-4 juga menunjukkan hasil serupa dengan packet loss 0% dan latency stabil, mengonfirmasi ketiga PC dapat berkomunikasi melalui bridge dengan baik.
@@ -321,7 +331,8 @@ Keys:  Help   Display mode   Restart statistics   Order of fields   quit
 ```
 
 **Screenshot:**
-[Insert screenshot hasil mtr dengan packet loss]
+![Hasil MTR Packet Loss PC-2](img/netics-pc-2-packet-loss.png)
+![Hasil MTR Packet Loss PC-4](img/netics-pc-4-packet-loss.png)
 
 **Penjelasan:**
 MTR juga menampilkan packet loss sekitar 20% (20.1%), konsisten dengan hasil ping. Meskipun terdapat packet loss, latency masih tetap rendah, menunjukkan gangguan hanya pada tingkat packet delivery, bukan pada kecepatan transmisi.
@@ -344,7 +355,7 @@ qdisc netem 8002: dev eth1 root refcnt 2 limit 1000 loss 20%
 ```
 
 **Screenshot:**
-[Insert screenshot verifikasi qdisc]
+![Verifikasi Qdisc Packet Loss](img/netics-pc-3-packet-loss.png)
 
 **Penjelasan:**
 Output tc qdisc show mengkonfirmasi bahwa netem dengan loss 20% sudah diterapkan pada kedua interface eth0 dan eth1 di bridge PC-3.
@@ -423,8 +434,10 @@ Connecting to host 192.168.1.101, port 5201
 ```
 
 **Screenshot:**
-[Insert screenshot iperf3 server]
-[Insert screenshot iperf3 client]
+![iperf3 Server PC-1 Test 1](img/netics-pc-1-pembatasan-throughput-server-test-1.png)
+![iperf3 Server PC-1 Test 2](img/netics-pc-1-pembatasan-throughput-server-test-2.png)
+![iperf3 Client PC-2](img/netics-pc-2-pembatasan-throughput-client-test-1.png)
+![iperf3 Client PC-4](img/netics-pc-4-pembatasan-throughput-client-test-2.png)
 
 **Penjelasan:**
 Meskipun client meminta 100 Mbps (-b 100M), throughput terbatas menjadi 50 Mbps oleh tc tbf rate yang diterapkan di PC-3. Ini membuktikan pembatasan bandwidth berfungsi dengan baik.
@@ -447,7 +460,7 @@ qdisc tbf 8002: dev eth1 root refcnt 2 rate 50Mbit burst 64Kb limit 64Kb
 ```
 
 **Screenshot:**
-[Insert screenshot verifikasi qdisc pembatasan]
+![Verifikasi Qdisc Throughput](img/netics-pc-3-pembatasan-throughput.png)
 
 **Penjelasan:**
 Output tc qdisc show mengkonfirmasi bahwa tbf (Token Bucket Filter) dengan rate 50 Mbps sudah diterapkan pada kedua interface.
